@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Quiz Application</title>
+
+<style>
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #eef2ff;
+    font-family: Arial, sans-serif;
+  }
+
+  .container {
+    background: #fff;
+    width: 400px;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  }
+
+  h2 {
+    text-align: center;
+  }
+
+  #progress {
+    text-align: center;
+    color: #555;
+    margin-bottom: 15px;
+  }
+
+  .question {
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  .option {
+    margin: 6px 0;
+  }
+
+  input[type="text"] {
+    width: 100%;
+    padding: 7px;
+    margin-top: 5px;
+  }
+
+  button {
+    width: 100%;
+    margin-top: 15px;
+    padding: 10px;
+    border: none;
+    background: #4f46e5;
+    color: #fff;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background: #4338ca;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  #result {
+    text-align: center;
+    font-size: 18px;
+  }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2>Quiz Game</h2>
+  <div id="progress"></div>
+  <div id="quiz"></div>
+  <button id="nextBtn">Next</button>
+  <div id="result" class="hidden"></div>
+</div>
+
+<script>
+  
+  var quizData = [
+    {
+      type: "single",
+      question: "Which tag is used to create a hyperlink in HTML?",
+      options: ["<a>", "<p>", "<div>", "<link>"],
+      answer: ["<a>"]
+    },
+    {
+      type: "multi",
+      question: "Which of the following are programming languages?",
+      options: ["HTML", "Python", "CSS", "Java"],
+      answer: ["Python", "Java"]
+    },
+    {
+      type: "fill",
+      question: "Fill in the blank: CSS stands for ______ Style Sheets.",
+      answer: "Cascading"
+    }
+  ];
+
+  var currentQuestion = 0;
+  var score = 0;
+
+  var quizBox = document.getElementById("quiz");
+  var progress = document.getElementById("progress");
+  var nextBtn = document.getElementById("nextBtn");
+  var resultBox = document.getElementById("result");
+
+  loadQuestion();
+
+  function loadQuestion() {
+    quizBox.innerHTML = "";
+    progress.innerHTML = "Question " + (currentQuestion + 1) + " of " + quizData.length;
+
+    var q = quizData[currentQuestion];
+
+    var qText = document.createElement("div");
+    qText.className = "question";
+    qText.innerHTML = q.question;
+    quizBox.appendChild(qText);
+
+    if (q.type === "single" || q.type === "multi") {
+      for (var i = 0; i < q.options.length; i++) {
+        var div = document.createElement("div");
+        div.className = "option";
+
+        var input = document.createElement("input");
+        input.type = q.type === "single" ? "radio" : "checkbox";
+        input.name = "answer";
+        input.value = q.options[i];
+
+        div.appendChild(input);
+        div.appendChild(document.createTextNode(" " + q.options[i]));
+        quizBox.appendChild(div);
+      }
+    }
+
+    if (q.type === "fill") {
+      var inputBox = document.createElement("input");
+      inputBox.type = "text";
+      inputBox.id = "fillAnswer";
+      quizBox.appendChild(inputBox);
+    }
+  }
+
+  nextBtn.onclick = function () {
+    checkAnswer();
+    currentQuestion++;
+
+    if (currentQuestion < quizData.length) {
+      loadQuestion();
+    } else {
+      showResult();
+    }
+  };
+
+  function checkAnswer() {
+    var q = quizData[currentQuestion];
+    var userAnswer = [];
+
+    if (q.type === "single" || q.type === "multi") {
+      var selected = document.getElementsByName("answer");
+      for (var i = 0; i < selected.length; i++) {
+        if (selected[i].checked) {
+          userAnswer.push(selected[i].value);
+        }
+      }
+    }
+
+    if (q.type === "fill") {
+      var textValue = document.getElementById("fillAnswer").value.trim();
+      if (textValue.toLowerCase() === q.answer.toLowerCase()) {
+        score++;
+      }
+      return;
+    }
+
+    userAnswer.sort();
+    q.answer.sort();
+
+    if (userAnswer.toString() === q.answer.toString()) {
+      score++;
+    }
+  }
+
+  function showResult() {
+    quizBox.classList.add("hidden");
+    nextBtn.classList.add("hidden");
+    progress.classList.add("hidden");
+
+    resultBox.classList.remove("hidden");
+    resultBox.innerHTML =
+      "🎉 Quiz Completed<br><br>" +
+      "Your Score: <b>" + score + " / " + quizData.length + "</b>";
+  }
+</script>
+
+</body>
+</html>
